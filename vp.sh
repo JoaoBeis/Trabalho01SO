@@ -25,7 +25,7 @@ while [ $# -gt 0 ]; do
         case "$opt" in
             p) modo_p=true ;;
             v) modo_v=true ;;
-            f) ficheiro_db="$OPTARG" ;;
+            f) ficheiro_db="$OPTARG" ;; 
             e) padrao_ignorar="$OPTARG" ;;
             s) usar_logger=true ;;
             \?) echo "Invalid switch -$OPTARG"; msg_erro; exit 1 ;;
@@ -43,3 +43,37 @@ while [ $# -gt 0 ]; do
         OPTIND=1           # reinicia o índice do getopts para ele voltar a procurar flags
     fi
 done
+
+if [ "$modo_p" = true ] && [ "$modo_v" = true ]; then
+    echo "Não é possível introduzir -p e -v simultaneamente."
+    msg_erro
+    exit 1
+fi
+
+if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then 
+    modo_v=true
+fi
+
+function obter_metadados() {
+    local ficheiro="$1"
+
+    local user=$(ls -l "$ficheiro" | awk '{print $3}')
+    local group=$(ls -l "$ficheiro" | awk '{print $4}')
+    local size=$(ls -l "$ficheiro" | awk '{print $5}')
+    local perm=$(ls -l "$ficheiro" | awk '{print $1}')
+    local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
+
+    # Retorna tudo numa linha separado por |
+    echo "$user|$group|$size|$perm|$sha256"
+}
+
+
+function proteger(){
+    if [ ${dir[@]} -eq 0 ]; then
+        echo " Tem de ser indicado algum diretorio."
+        msg_erro
+        exit 1
+    fi
+
+    > "$ficheiro_db"
+}
