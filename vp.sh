@@ -44,17 +44,17 @@ while [ $# -gt 0 ]; do
     fi
 done
 
-if [ "$modo_p" = true ] && [ "$modo_v" = true ]; then
+if [ "$modo_p" = true ] && [ "$modo_v" = true ]; then # se for introduzido -p e -v nao pode
     echo "Não é possível introduzir -p e -v simultaneamente."
     msg_erro
     exit 1
 fi
 
-if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then 
+if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then # se não for introduzido nem -p nem -v automaticamente é implementado o a flag -v
     modo_v=true
 fi
 
-function obter_metadados() {
+function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supostamente devia aparecer 755, 644..
     local ficheiro="$1"
 
     local user=$(ls -l "$ficheiro" | awk '{print $3}')
@@ -64,16 +64,50 @@ function obter_metadados() {
     local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
 
     # Retorna tudo numa linha separado por |
-    echo "$user|$group|$size|$perm|$sha256"
+    echo " USER=$user,  GROUP=$group,   SIZE=$size,  PERM =$perm,
+    SHA256=$sha256"
 }
 
 
 function proteger(){
-    if [ ${dir[@]} -eq 0 ]; then
-        echo " Tem de ser indicado algum diretorio."
+    if [ $#{dir[@]} -eq 0 ]; then  # se o numero de diretorios for igual a 0 
+        echo "Tem de ser indicado algum diretorio."
         msg_erro
         exit 1
     fi
 
-    > "$ficheiro_db"
+    if ! : > "$ficheiro_db"; then
+        echo "Não foi possível criar a base de dados."
+        exit 1
+    fi
+
+    for diretorio in "${dir[@]}; do
+
+        if [ ! -d "$diretorio" ]; then 
+            echo " O diretório '$diretorio' não existe."
+            continue
+        fi
+        
+        for ficheiro in "$diretorio"/*; do
+
+            if [ -f "$ficheiro" ]; then
+        
+                if [ -n "$padrao_ignorar" ]; then
+                    case "$ficheiro" in 
+                        $padrao_ignorar) continue ;;
+                    esac
+                if
+
+                metadados = $(obter_metadados "$ficheiro")
+
+                if [ $? -eq 0 ]; then
+                    echo "$ficheiro|$metadados"n >> "$ficheiro_db"
+                else
+                    echo " Não é possível obter_metadados de '$ficheiro'."
+            fi
+        done
+    done
+
+    echo "Base de dados de proteção $ficheiro_db criada com sucesso."
+    echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
 }
