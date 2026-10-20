@@ -25,7 +25,7 @@ while [ $# -gt 0 ]; do
         case "$opt" in
             p) modo_p=true ;;
             v) modo_v=true ;;
-            f) ficheiro_db="$OPTARG" ;;
+            f) ficheiro_db="$OPTARG" ;; 
             e) padrao_ignorar="$OPTARG" ;;
             s) usar_logger=true ;;
             \?) echo "Invalid switch -$OPTARG"; msg_erro; exit 1 ;;
@@ -43,3 +43,71 @@ while [ $# -gt 0 ]; do
         OPTIND=1           # reinicia o índice do getopts para ele voltar a procurar flags
     fi
 done
+
+if [ "$modo_p" = true ] && [ "$modo_v" = true ]; then # se for introduzido -p e -v nao pode
+    echo "Não é possível introduzir -p e -v simultaneamente."
+    msg_erro
+    exit 1
+fi
+
+if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then # se não for introduzido nem -p nem -v automaticamente é implementado o a flag -v
+    modo_v=true
+fi
+
+function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supostamente devia aparecer 755, 644..
+    local ficheiro="$1"
+
+    local user=$(ls -l "$ficheiro" | awk '{print $3}')
+    local group=$(ls -l "$ficheiro" | awk '{print $4}')
+    local size=$(ls -l "$ficheiro" | awk '{print $5}')
+    local perm=$(ls -l "$ficheiro" | awk '{print $1}')
+    local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
+
+    # Retorna tudo numa linha separado por |
+    echo " USER=$user,  GROUP=$group,   SIZE=$size,  PERM =$perm,
+    SHA256=$sha256"
+}
+
+
+function proteger(){
+    if [ $#{dir[@]} -eq 0 ]; then  # se o numero de diretorios for igual a 0 
+        echo "Tem de ser indicado algum diretorio."
+        msg_erro
+        exit 1
+    fi
+
+    if ! : > "$ficheiro_db"; then
+        echo "Não foi possível criar a base de dados."
+        exit 1
+    fi
+
+    for diretorio in "${dir[@]}; do
+
+        if [ ! -d "$diretorio" ]; then 
+            echo " O diretório '$diretorio' não existe."
+            continue
+        fi
+        
+        for ficheiro in "$diretorio"/*; do
+
+            if [ -f "$ficheiro" ]; then
+        
+                if [ -n "$padrao_ignorar" ]; then
+                    case "$ficheiro" in 
+                        $padrao_ignorar) continue ;;
+                    esac
+                if
+
+                metadados = $(obter_metadados "$ficheiro")
+
+                if [ $? -eq 0 ]; then
+                    echo "$ficheiro|$metadados"n >> "$ficheiro_db"
+                else
+                    echo " Não é possível obter_metadados de '$ficheiro'."
+            fi
+        done
+    done
+
+    echo "Base de dados de proteção $ficheiro_db criada com sucesso."
+    echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
+}
