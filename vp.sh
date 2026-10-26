@@ -55,14 +55,14 @@ if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then # se não for introduzid
 fi
 
 function calcular_perm(){
-    local p="{1:1:9}"
+    local p="${1:1:9}"
     local numero= "" i grupo valor
 
     for i in 0 3 6; do
         grupo=${p:$i:3}
         valor=0
         [ "${grupo:0:1}" != "-" ] && valor=$((valor + 4))
-        [ "${grupo:1:1}" != "-"] && valor=$((valor + 2))
+        [ "${grupo:1:1}" != "-" ] && valor=$((valor + 2))
         [ "${grupo:2:1}" != "-" ] && valor=$((valor + 1))
         numero="$numero$valor"
     done
@@ -84,9 +84,13 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
 }
 
 function excluir() {
-    case "$1" in 
-        $padrao_ignorar) continue ;; # ignora o $padrao_ignorar (argumento da funcao: $1)
-    esac
+    if [ -n "$padrao_ignorar" ]; then # se -e foi chamado
+        case "$1" in 
+            $padrao_ignorar) return 0 ;; # 0 = Verdadeiro (coincide com o padrão, é para excluir)
+            *) return 1 ;;               # 1 = Falso (não coincide)
+        esac
+    fi
+    return 1;
 }
 
 function proteger() {
@@ -114,8 +118,8 @@ function proteger() {
 
             if [ -f "$ficheiro" ]; then
         
-                if [ -n "$padrao_ignorar" ]; then # se -e foi chamado
-                    excluir "$ficheiro"
+                if excluir "$ficheiro"; then
+                    continue
                 fi
 
                 metadados=$(obter_metadados "$ficheiro")
@@ -148,8 +152,8 @@ function verificar() {
         ficheiro=${linha%%|*}             # 2. separa o caminho
         guardado=${linha#*|}
 
-        if [ -n "$padrao_ignorar" ]; then
-            excluir "$ficheiro"
+        if excluir "$ficheiro"; then
+            continue
         fi
 
         verificados=$((verificados+1))
@@ -189,8 +193,8 @@ function verificar() {
         for ficheiro in "$d"/*; do
             [ -f "$ficheiro" ] || continue
 
-            if [ -n "$padrao_ignorar" ]; then 
-                excluir "$ficheiro"
+            if excluir "$ficheiro"; then
+                continue
             fi
 
             atuais="$atuais$ficheiro"$'\n'
