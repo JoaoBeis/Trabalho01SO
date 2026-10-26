@@ -70,7 +70,7 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
 
 
 function proteger(){
-    if [ $#{dir[@]} -eq 0 ]; then  # se o numero de diretorios for igual a 0 
+    if [ ${#dir[@]} -eq 0 ]; then  # se o numero de diretorios for igual a 0 
         echo "Tem de ser indicado algum diretorio."
         msg_erro
         exit 1
@@ -81,7 +81,9 @@ function proteger(){
         exit 1
     fi
 
-    for diretorio in "${dir[@]}; do
+    ficheiros=0
+
+    for diretorio in "${dir[@]}"; do
 
         if [ ! -d "$diretorio" ]; then 
             echo " O diretório '$diretorio' não existe."
@@ -96,14 +98,16 @@ function proteger(){
                     case "$ficheiro" in 
                         $padrao_ignorar) continue ;;
                     esac
-                if
+                fi
 
-                metadados = $(obter_metadados "$ficheiro")
+                metadados=$(obter_metadados "$ficheiro")
 
                 if [ $? -eq 0 ]; then
-                    echo "$ficheiro|$metadados"n >> "$ficheiro_db"
+                    echo "$ficheiro|$metadados" >> "$ficheiro_db"
+                    ficheiros=$((ficheiros + 1))
                 else
                     echo " Não é possível obter_metadados de '$ficheiro'."
+                fi
             fi
         done
     done
