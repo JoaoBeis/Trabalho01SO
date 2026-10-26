@@ -68,8 +68,8 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
 }
 
 function excluir() {
-    case "$ficheiro" in 
-        $padrao_ignorar) continue ;; # ignora o $padrao_ignorar passado no -e
+    case "$1" in 
+        $padrao_ignorar) continue ;; # ignora o $padrao_ignorar (argumento da funcao: $1)
     esac
 }
 
@@ -99,7 +99,7 @@ function proteger() {
             if [ -f "$ficheiro" ]; then
         
                 if [ -n "$padrao_ignorar" ]; then # se -e foi chamado
-                    excluir
+                    excluir "$ficheiro"
                 fi
 
                 metadados=$(obter_metadados "$ficheiro")
