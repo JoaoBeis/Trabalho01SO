@@ -2,7 +2,7 @@
 
 modo_p=false
 modo_v=false
-ficheiro_db="/tmp/.pdb"
+ficheiro_bd="/tmp/.pdb"
 padrao_ignorar=""
 usar_logger=false
 dir=()
@@ -25,7 +25,7 @@ while [ $# -gt 0 ]; do
         case "$opt" in
             p) modo_p=true ;;
             v) modo_v=true ;;
-            f) ficheiro_db="$OPTARG" ;; 
+            f) ficheiro_bd="$OPTARG" ;; 
             e) padrao_ignorar="$OPTARG" ;;
             s) usar_logger=true ;;
             \?) echo "Invalid switch -$OPTARG"; msg_erro; exit 1 ;;
@@ -68,15 +68,20 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
     SHA256=$sha256"
 }
 
+function excluir() {
+    case "$ficheiro" in 
+        $padrao_ignorar) continue ;; # ignora o $padrao_ignorar passado no -e
+    esac
+}
 
-function proteger(){
+function proteger() {
     if [ ${#dir[@]} -eq 0 ]; then  # se o numero de diretorios for igual a 0 
         echo "Tem de ser indicado algum diretorio."
         msg_erro
         exit 1
     fi
 
-    if ! : > "$ficheiro_db"; then
+    if ! : > "$ficheiro_bd"; then
         echo "Não foi possível criar a base de dados."
         exit 1
     fi
@@ -94,16 +99,14 @@ function proteger(){
 
             if [ -f "$ficheiro" ]; then
         
-                if [ -n "$padrao_ignorar" ]; then
-                    case "$ficheiro" in 
-                        $padrao_ignorar) continue ;;
-                    esac
+                if [ -n "$padrao_ignorar" ]; then # se -e foi chamado
+                    excluir
                 fi
 
                 metadados=$(obter_metadados "$ficheiro")
 
                 if [ $? -eq 0 ]; then
-                    echo "$ficheiro|$metadados" >> "$ficheiro_db"
+                    echo "$ficheiro|$metadados" >> "$ficheiro_bd" # 
                     ficheiros=$((ficheiros + 1))
                 else
                     echo " Não é possível obter_metadados de '$ficheiro'."
@@ -112,6 +115,6 @@ function proteger(){
         done
     done
 
-    echo "Base de dados de proteção $ficheiro_db criada com sucesso."
+    echo "Base de dados de proteção $ficheiro_bd criada com sucesso."
     echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
 }
