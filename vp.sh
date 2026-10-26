@@ -54,17 +54,33 @@ if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then # se não for introduzid
     modo_v=true
 fi
 
+function calcular_perm(){
+    local p="{1:1:9}"
+    local numero= "" i grupo valor
+
+    for i in 0 3 6; do
+        grupo=${p:$i:3}
+        valor=0
+        [ "${grupo:0:1}" != "-" ] && valor=$((valor + 4))
+        [ "${grupo:1:1}" != "-"] && valor=$((valor + 2))
+        [ "${grupo:2:1}" != "-" ] && valor=$((valor + 1))
+        numero="$numero$valor"
+    done
+
+    echo "$numero"
+}
+
 function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supostamente devia aparecer 755, 644..
     local ficheiro="$1"
 
     local user=$(ls -l "$ficheiro" | awk '{print $3}')
     local group=$(ls -l "$ficheiro" | awk '{print $4}')
     local size=$(ls -l "$ficheiro" | awk '{print $5}')
-    local perm=$(ls -l "$ficheiro" | awk '{print $1}')
+    local perm=$(calcular_perm "$(ls -l "$ficheiro" | awk '{print $1}')")
     local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
 
     # Retorna tudo numa linha separado por |
-    echo " USER=$user,  GROUP=$group,   SIZE=$size,  PERM =$perm, SHA256=$sha256"
+    echo " USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, SHA256=$sha256"
 }
 
 function excluir() {
@@ -125,7 +141,7 @@ function verificar() {
     fi
 
     local verificados=0 modificados=0 apagados=0 novos=0 # variaveis que so existem dentro da função logo usamos local
-    local linha ficheiro guardado atual desc d # linha da base de dados lida/ o caminho do ficheiro/ os metadados antigos e os novos
+    local linha ficheiro guardado atual desc d dif atuais # linha da base de dados lida/ o caminho do ficheiro/ os metadados antigos e os novos
     local sep="-----------------------------------------------------------------------------------------------------------------------------"
     
     while IFS= read -r linha; do          # 1. lê uma linha
@@ -133,7 +149,7 @@ function verificar() {
         guardado=${linha#*|}
 
         if [ -n "$padrao_ignorar" ]; then
-            excluir
+            excluir "$ficheiro"
         fi
 
         verificados=$((verificados+1))
@@ -142,24 +158,55 @@ function verificar() {
             alerta "$ficheiro foi APAGADO"
             echo " Informação inicial: $guardado"
             echo " Informação atual: [Ficheiro não encontrado no sistema]"
-            removidos=$((removidos + 1))
+            echo "$sep"
+            apagados=$((apagados + 1))
             continue
         fi
         
         atual=$(obter_metadados "$ficheiro")
 
-        if [ "$atual" = "$guardado" ]; then
-            bons=$((bons + 1))
-        else
-            alerta "ALTERADO: $ficheiro"
-            alterados=$((alterados + 1))
-        fi              
-    
+        if [ "$atual" != "$guardado" ]; then
+            # um campo por linha, para o diff mostrar só os que mudaram
+            dif=$(diff <(tr ',' '\n' <<< "$guardado") <(tr ',' '\n' <<< "$atual"))
+
+            desc=""
+            grep -qE "USER|GROUP" <<< "$dif" && desc="$desc Posse"
+            grep -q "PERM" <<< "$dif" && desc="$desc Permissões"
+            grep -qE "SIZE|SHA256" <<< "$dif" && desc="$desc Conteúdo"
+            desc=${desc# }
+            desc=${desc// / e }
+
+            alerta "$ficheiro foi MODIFICADO (Alteração de $desc)"
+            echo "  Informação inicial: $guardado"
+            echo "  Informação atual:  $atual"
+            echo "$sep"
+            modificados=$((modificados + 1))
+        fi
     done < "$ficheiro_bd"
 
-    echo "Verificação concluída: $bons sem alterações | $alterados alterados | $removidos removidos"
+    atuais=""
+    for d in $(cut -d '|' -f1 "$ficheiro_bd" | xargs -n1 dirname | sort -u); do
+        for ficheiro in "$d"/*; do
+            [ -f "$ficheiro" ] || continue
 
-    [ $((alterados + removidos)) -eq 0 ]
+            if [ -n "$padrao_ignorar" ]; then 
+                excluir "$ficheiro"
+            fi
+
+            atuais="$atuais$ficheiro"$'\n'
+        done
+    done
+
+    for ficheiro in $(diff <(cut -d'|' -f1 "$ficheiro_bd" | sort) <(sort <<< "$atuais") | grep '^> ' | cut -c3-); do
+        alerta "$ficheiro é NOVO"
+        echo "  Informação atual:  $(obter_metadados "$ficheiro")"
+        echo "$sep"
+        novos=$((novos + 1))
+    done
+
+    echo "Resumo da Verificação: $verificados verificados | $modificados Modificado | $apagados Apagado | $novos Novo"
+
+    [ $((modificados + apagados + novos)) -eq 0 ]
 }   
 
 function alerta() {
@@ -168,3 +215,10 @@ function alerta() {
         logger -p user.alert -t vp "$1" # -p defininimos o nivel de prioridade o -t é para colcoar o programa vp a gerar o log
     fi
 }
+
+if [ "$modo_p" = true ]; then
+    proteger
+else
+    verificar
+    exit $?
+fi
