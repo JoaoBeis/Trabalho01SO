@@ -22,3 +22,7 @@ Desenvolvemos a função `proteger` para criar a base de dados de proteção:
 3. Para cada ficheiro válido, chama a função `obter_metadados` e escreve a linha formatada no ficheiro de base de dados.
 4. No fim de processar tudo, mostra a mensagem de confirmação no terminal com o total de ficheiros processados e os diretórios protegidos.
 
+Quando começámos a trabalhar na função `verificar` percebemos que a lógica da função da flag `e` era igual, e para evitar código duplicado colocámos essa lógica numa função dedicada `excluir`, que recebe como argumento o caminho do ficheiro que está a ser analisado de momento no loop for. Depois compara esse ficheiro ao `$padrao_ignorar`, e caso sejam iguais, a função retorna 0, caso contrário retorna 1. Por defeito, se `-e` não for chamado ou não receber argumento, a função `excluir` retorna 1.
+Na função `proteger`, no início de cada ciclo for é testada a função `excluir`, e caso esta retorne o (true), temos um `continue` que salta para a próxima iteração, logo, ignora essa ficheiro, como pretendido.
+Na função `verificar` temos de usar a função `excluir` duas vezes: uma durante a leitura dos ficheiros que estão na base de dados de proteção, e outra na leitura dos ficheiros protegidos no sistema. Isto permite ao utilizador ignorar ficheiros que ele sabe que foram alterados ou adicionados, tanto na perspetiva da base de dados de proteção, tal como na dos ficheiros do sistema que estão a ser analisados.
+
