@@ -64,8 +64,7 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
     local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
 
     # Retorna tudo numa linha separado por |
-    echo " USER=$user,  GROUP=$group,   SIZE=$size,  PERM =$perm,
-    SHA256=$sha256"
+    echo " USER=$user,  GROUP=$group,   SIZE=$size,  PERM =$perm, SHA256=$sha256"
 }
 
 function excluir() {
@@ -117,4 +116,55 @@ function proteger() {
 
     echo "Base de dados de proteção $ficheiro_bd criada com sucesso."
     echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
+}
+
+function verificar() {
+    if [ ! -f "$ficheiro_bd" ]; then 
+        echo " A base de dados '$ficheiro_bd' não existe, tem de ser criada com a flag -p."
+        exit 1 # termina com erro
+    fi
+
+    local verificados=0 modificados=0 apagados=0 novos=0 # variaveis que so existem dentro da função logo usamos local
+    local linha ficheiro guardado atual desc d # linha da base de dados lida/ o caminho do ficheiro/ os metadados antigos e os novos
+    local sep="-----------------------------------------------------------------------------------------------------------------------------"
+    
+    while IFS= read -r linha; do          # 1. lê uma linha
+        ficheiro=${linha%%|*}             # 2. separa o caminho
+        guardado=${linha#*|}
+
+        if [ -n "$padrao_ignorar" ]; then
+            excluir
+        fi
+
+        verificados=$((verificados+1))
+
+        if [ ! -f "$ficheiro" ]; then
+            alerta "$ficheiro foi APAGADO"
+            echo " Informação inicial: $guardado"
+            echo " Informação atual: [Ficheiro não encontrado no sistema]"
+            removidos=$((removidos + 1))
+            continue
+        fi
+        
+        atual=$(obter_metadados "$ficheiro")
+
+        if [ "$atual" = "$guardado" ]; then
+            bons=$((bons + 1))
+        else
+            alerta "ALTERADO: $ficheiro"
+            alterados=$((alterados + 1))
+        fi              
+    
+    done < "$ficheiro_bd"
+
+    echo "Verificação concluída: $bons sem alterações | $alterados alterados | $removidos removidos"
+
+    [ $((alterados + removidos)) -eq 0 ]
+}   
+
+function alerta() {
+    echo "$1"
+    if [ "$usar_logger" = true ]; then 
+        logger -p user.alert -t vp "$1" # -p defininimos o nivel de prioridade o -t é para colcoar o programa vp a gerar o log
+    fi
 }
