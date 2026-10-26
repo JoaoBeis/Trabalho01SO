@@ -56,7 +56,7 @@ fi
 
 function calcular_perm(){
     local p="${1:1:9}"
-    local numero= "" i grupo valor
+    local numero="" i grupo valor
 
     for i in 0 3 6; do
         grupo=${p:$i:3}
@@ -80,7 +80,7 @@ function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supos
     local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
 
     # Retorna tudo numa linha separado por |
-    echo " USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, SHA256=$sha256"
+    echo "USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, SHA256=$sha256"
 }
 
 function excluir() {
