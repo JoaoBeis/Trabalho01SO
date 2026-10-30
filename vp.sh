@@ -1,11 +1,12 @@
 #!/bin/bash
 
+# variaveis que guardam o que o utilizador pede na linha de comandos
 modo_p=false
 modo_v=false
-ficheiro_bd="/tmp/.pdb"
+ficheiro_bd="/tmp/.pdb" #por defeito a bd fica neste caminho
 padrao_ignorar=""
 usar_logger=false
-dir=()
+dir=() #array com os diretorios a proteger
 
 function msg_erro()
 {
@@ -54,30 +55,40 @@ if [ "$modo_p" = false ] && [ "$modo_v" = false ]; then # se não for introduzid
     modo_v=true
 fi
 
-function calcular_perm(){
-    local p="${1:1:9}"
-    local numero="" i grupo valor
+function calcular_perm(){ #r=4;w=2;x=1;-=0
+    local p="${1:1:9}" # ${variavel:inicio:tamanho}, a posição 0 não interessa pois apenas indica o tipo de ficheiro
+    local numero="" i grupo valor #cria 4 variaveis, numero que é o resultado inicializado com ""
+                                  #i é a posição onde começa cada grupo, grupo sao as 3 letras e o valor é o valor do grupo (rwx)
 
-    for i in 0 3 6; do
+    for i in 0 3 6; do #ciclo acontece 3 vezes
         grupo=${p:$i:3}
         valor=0
-        [ "${grupo:0:1}" != "-" ] && valor=$((valor + 4))
-        [ "${grupo:1:1}" != "-" ] && valor=$((valor + 2))
-        [ "${grupo:2:1}" != "-" ] && valor=$((valor + 1))
-        numero="$numero$valor"
+        
+        if [ "${grupo:0:1}" != "-" ]; then #permissao tem a ordem rwx
+            valor=$((valor + 4))
+        fi
+        if [ "${grupo:1:1}" != "-" ]; then
+            valor=$((valor + 2))
+        fi
+        if [ "${grupo:2:1}" != "-" ]; then
+            valor=$((valor + 1))
+        fi
+
+        numero="$numero$valor" #junta o textl de numero e valor. ex: ""+"7"
     done
 
     echo "$numero"
 }
 
-function obter_metadados() { # aqui a permissao aparece na forma --rw--r e supostamente devia aparecer 755, 644..
+function obter_metadados() {
     local ficheiro="$1"
 
-    local user=$(ls -l "$ficheiro" | awk '{print $3}')
+    #ls -l ficheiro vai imprimir uma coisa do genero -rw-r--r-- 1 jose jose 7 Oct 29 22:58 dados/a.txt
+    local user=$(ls -l "$ficheiro" | awk '{print $3}') #awk imprime so a coluna 3 
     local group=$(ls -l "$ficheiro" | awk '{print $4}')
     local size=$(ls -l "$ficheiro" | awk '{print $5}')
-    local perm=$(calcular_perm "$(ls -l "$ficheiro" | awk '{print $1}')")
-    local sha256=$(sha256sum "$ficheiro" | awk '{print $1}')
+    local perm=$(calcular_perm "$(ls -l "$ficheiro" | awk '{print $1}')") # aqui é aproveitada a coluna 1 que depois é utilizada pela calcular_perm
+    local sha256=$(sha256sum "$ficheiro" | awk '{print $1}') #imprime varios caracteres e se for alterado uma unica letra o conjunto de caracteres muda
 
     # Retorna tudo numa linha separado por |
     echo "USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, SHA256=$sha256"
@@ -100,37 +111,36 @@ function proteger() {
         exit 1
     fi
 
-    if ! : > "$ficheiro_bd"; then
+    # é preciso remover a bd antiga ? rm -f "$ficheiro_bd"
+    if ! : > "$ficheiro_bd"; then # se nao for possivel criar uma bd, se for cria uma vazia 
         echo "Não foi possível criar a base de dados."
         exit 1
     fi
 
-    ficheiros=0
+    ficheiros=0 # iniciar contador de numero de ficheiros
 
-    for diretorio in "${dir[@]}"; do
+    for diretorio in "${dir[@]}"; do # percorre todos os elementos do array
 
-        if [ ! -d "$diretorio" ]; then 
+        if [ ! -d "$diretorio" ]; then # -d ve se o diretorio existe
             echo " O diretório '$diretorio' não existe."
-            continue
+            continue #salta para o proximo diretorio
         fi
         
-        for ficheiro in "$diretorio"/*; do
-
-            if [ -f "$ficheiro" ]; then
+        while IFS= read -r ficheiro; do # IFS evita que o read apague espaços no inicio/fim da linha e -r evita que \ seja interpretado como caracter especial
         
                 if excluir "$ficheiro"; then
-                    continue
+                    continue # se for para excluir salta para o outro ficheiro
                 fi
 
-                metadados=$(obter_metadados "$ficheiro")
+                metadados=$(obter_metadados "$ficheiro") # guarda as informações em metadados
 
-                if [ $? -eq 0 ]; then
-                    echo "$ficheiro|$metadados" >> "$ficheiro_bd" # 
+                if [ $? -eq 0 ]; then # se o ultimo comando returnou 0 ou seja foi possivel obter metadados fazemos:
+                    echo "$ficheiro|$metadados" >> "$ficheiro_bd" #escreve o caminho e os metadados na bd
                     ficheiros=$((ficheiros + 1))
-                else
+                else # se nao foi possivel obter os metadados return 1 e temos erro
                     echo " Não é possível obter_metadados de '$ficheiro'."
                 fi
-            fi
+           
         done
     done
 
@@ -139,37 +149,39 @@ function proteger() {
 }
 
 function verificar() {
+
     if [ ! -f "$ficheiro_bd" ]; then 
         echo " A base de dados '$ficheiro_bd' não existe, tem de ser criada com a flag -p."
+        msg_erro
         exit 1 # termina com erro
     fi
 
     local verificados=0 modificados=0 apagados=0 novos=0 # variaveis que so existem dentro da função logo usamos local
-    local linha ficheiro guardado atual desc d dif atuais # linha da base de dados lida/ o caminho do ficheiro/ os metadados antigos e os novos
+    local ficheiro guardado atual desc d dif # linha da base de dados lida/ o caminho do ficheiro/ os metadados antigos e os novos
+    local dirs_protegidos=()
     local sep="-----------------------------------------------------------------------------------------------------------------------------"
     
-    while IFS= read -r linha; do          # 1. lê uma linha
-        ficheiro=${linha%%|*}             # 2. separa o caminho
-        guardado=${linha#*|}
+    while IFS= "|" read -r ficheiro guardado; do  # IFS diz ao read para dividir linha quando encontrar |
+                                                  #divide em dois a 1 parte fica em ficheiro a 2 em guardado         
 
-        if excluir "$ficheiro"; then
+        if excluir "$ficheiro"; then #se o ficheiro corresponder ao padrao do -e é ignorado
             continue
         fi
 
         verificados=$((verificados+1))
 
-        if [ ! -f "$ficheiro" ]; then
-            alerta "$ficheiro foi APAGADO"
+        if [ ! -f "$ficheiro" ]; then # se -f dizer que ficheiro não existe
+            alerta "$ficheiro foi APAGADO" #imprime mensagem e envia para o log se houver -s
             echo " Informação inicial: $guardado"
             echo " Informação atual: [Ficheiro não encontrado no sistema]"
             echo "$sep"
             apagados=$((apagados + 1))
-            continue
+            continue # salta o resto da volta
         fi
         
-        atual=$(obter_metadados "$ficheiro")
+        atual=$(obter_metadados "$ficheiro") # calcula os metadados de agora do ficheiro
 
-        if [ "$atual" != "$guardado" ]; then
+        if [ "$atual" != "$guardado" ]; then # se forem diferentes isto vai acontecer
             # um campo por linha, para o diff mostrar só os que mudaram
             dif=$(diff <(tr ',' '\n' <<< "$guardado") <(tr ',' '\n' <<< "$atual"))
 
@@ -186,27 +198,24 @@ function verificar() {
             echo "$sep"
             modificados=$((modificados + 1))
         fi
-    done < "$ficheiro_bd"
+    done < "$ficheiro_bd" #vamos buscar as linhas que estamos a ler a bd
 
-    atuais=""
-    for d in $(cut -d '|' -f1 "$ficheiro_bd" | xargs -n1 dirname | sort -u); do
-        for ficheiro in "$d"/*; do
-            [ -f "$ficheiro" ] || continue
-
+    for d in "${dirs_protegidos[@]}"; do # percorre os elementos do array
+        while IFS= read -r ficheiro; do
             if excluir "$ficheiro"; then
                 continue
+            fi # salta os excluidos
+
+            if ! grep -qF "$ficheiro|" "$ficheiro_bd"; then # -q responde se foi enocntrado ou nao mas nao imprime nada e o -F diferfencia os caracteres especiais
+               #se nao tiver na bd acontece ito // procura o caminho na bd
+                alerta "$ficheiro é NOVO"
+                echo "  Informação atual:  $(obter_metadados "$ficheiro")"
+                echo "$sep"
+                novos=$((novos + 1))
             fi
-
-            atuais="$atuais$ficheiro"$'\n'
-        done
+        done < <(find "$d" -type f) # procura dentro do diretorio d e os subdiretorios os ficheiros apenas file (f)
     done
-
-    for ficheiro in $(diff <(cut -d'|' -f1 "$ficheiro_bd" | sort) <(sort <<< "$atuais") | grep '^> ' | cut -c3-); do
-        alerta "$ficheiro é NOVO"
-        echo "  Informação atual:  $(obter_metadados "$ficheiro")"
-        echo "$sep"
-        novos=$((novos + 1))
-    done
+    
 
     echo "Resumo da Verificação: $verificados verificados | $modificados Modificado | $apagados Apagado | $novos Novo"
 
