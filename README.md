@@ -31,3 +31,17 @@ Com isto, passámos para a função `verificar`, que dividimos em duas partes:
 2. A segunda parte do `verificar` serve para apanhar ficheiros novos. Para isso, fomos buscar os diretórios protegidos que ficaram gravados na base de dados (usando `cut`, `dirname` e `sort -u`) e percorremos o que está atualmente dentro dessas pastas no disco. Voltamos a passar a função `excluir` para não considerar ficheiros temporários novos e comparamos a lista de ficheiros do disco com a lista que tínhamos na base de dados usando o `diff`. Os ficheiros que aparecem no disco mas não estavam na base de dados são assinalados como novos. No fim de tudo, a função mostra um resumo com o total de ficheiros verificados, modificados, apagados e novos.
 
 Por último, criámos a função `alerta` para concentrar numa função a impressão das mensagens no terminal sempre que é detetada alguma alteração. Além de mostrar o texto no ecrã, esta função verifica se a flag `-s` foi ativada na linha de comandos. Se tiver sido ativada, envia também o aviso diretamente para os logs do sistema operativo usando o comando `logger -p user.alert -t vp`.
+
+Depois quando avançámos para a validação do script em cenários de teste reais, ajustámos o código para bater certo com os requisitos do guião:
+
+1. **Adição do Metadado de Data de Modificação (`MTIME`):**
+   Expandimos a função `obter_metadados` para registar a data e hora de modificação dos ficheiros através de `ls -l --time-style=+%Y-%m-%d_%H:%M:%S`. Na função `verificar`, atualizámos a comparação com o `diff` para identificar e sinalizar a "Data de modificação", permitindo detetar alterações causadas por comandos como o `touch` mesmo quando o tamanho ou a hash do ficheiro se mantêm inalterados.
+
+2. **Garantia de Recursividade e Processamento Seguros (`find`):**
+   Substituímos o varrimento por `for` simples em diretórios pela utilização do comando `find "$diretorio" -type f` em combinação com *process substitution* (`< <(find ...)`). Isto permitiu cobrir a pesquisa recursiva por subpastas exigida pelo enunciado e evitou o bloqueio da entrada padrão (`stdin`) nos ciclos `while`[cite: 14, 17].
+
+3. **Registo Dinâmico de Diretórios Protegidos (`#DIR|`):**
+   Passámos a guardar explicitamente linhas de cabeçalho com o prefixo `#DIR|diretorio` no ficheiro de base de dados durante o modo de proteção. Na verificação, o ciclo `while IFS="|" read -r ficheiro guardado` deteta estas entradas e preenche o array `dirs_protegidos`. Assim, a varredura por ficheiros novos é efetuada exatamente nas diretorias e subdiretorias registadas originalmente na base de dados.
+
+4. **Proteção da Base de Dados (`READ_ONLY`):**
+   No fecho da função `proteger`, passámos a aplicar o comando `chmod 400 "$ficheiro_bd"`, garantindo que a base de dados criada fica protegida com permissões de leitura exclusiva[cite: 14, 17]. Para permitir reexecutar o modo `-p` sobre uma base de dados já existente sem erros de permissão, adicionámos a remoção prévia com `rm -f "$ficheiro_bd"` antes da sua nova geração.
