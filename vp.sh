@@ -130,7 +130,7 @@ function proteger() {
     for diretorio in "${dir[@]}"; do # percorre todos os elementos do array
 
         if [ ! -d "$diretorio" ]; then # -d ve se o diretorio existe
-            echo " O diretório '$diretorio' não existe."
+            echo "O diretório '$diretorio' não existe."
             continue #salta para o proximo diretorio
         fi
         
@@ -146,7 +146,7 @@ function proteger() {
                     echo "$ficheiro|$metadados" >> "$ficheiro_bd" #escreve o caminho e os metadados na bd
                     ficheiros=$((ficheiros + 1))
                 else # se nao foi possivel obter os metadados return 1 e temos erro
-                    echo " Não é possível obter_metadados de '$ficheiro'."
+                    echo "Não é possível obter_metadados de '$ficheiro'."
                 fi
            
         done < <(find "$diretorio" -type f)
@@ -160,7 +160,7 @@ function proteger() {
 function verificar() {
 
     if [ ! -f "$ficheiro_bd" ]; then 
-        echo " A base de dados '$ficheiro_bd' não existe, tem de ser criada com a flag -p."
+        echo "A base de dados '$ficheiro_bd' não existe, tem de ser criada com a flag -p."
         msg_erro
         exit 1 # termina com erro
     fi

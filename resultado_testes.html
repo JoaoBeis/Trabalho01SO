@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
+<title>stdin</title>
+</head>
+<body style="color:white; background-color:black">
+<pre>
+<span style="color:aqua;">====================================================</span>
+<span style="color:aqua;">   DEMONSTRAÇÃO DE FUNCIONALIDADES - VIGIA PIRATA   </span>
+<span style="color:aqua;">====================================================</span>
+
+<span style="font-weight:bold;color:yellow;">[PASSO 1] A criar estrutura inicial de ficheiros de teste...</span>
+<span style="color:lime;">➜ Comandos de preparação do ambiente:</span>
+   <span style="font-weight:bold;color:fuchsia;">mkdir -p /tmp/demo_vp/documentos</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/ficheiro1.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/ficheiro2.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/documentos/manual.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/app.log</span>
+
+Conteúdo da pasta /tmp/demo_vp:
+total 12
+drwxrwxr-x  3 joaobeis joaobeis 120 Nov  4 18:31 .
+drwxrwxrwt 26 root     root     620 Nov  4 18:31 ..
+-rw-rw-r--  1 joaobeis joaobeis  15 Nov  4 18:31 app.log
+drwxrwxr-x  2 joaobeis joaobeis  60 Nov  4 18:31 documentos
+-rw-rw-r--  1 joaobeis joaobeis  31 Nov  4 18:31 ficheiro1.txt
+-rw-rw-r--  1 joaobeis joaobeis  31 Nov  4 18:31 ficheiro2.txt
+total 4
+drwxrwxr-x 2 joaobeis joaobeis  60 Nov  4 18:31 .
+drwxrwxr-x 3 joaobeis joaobeis 120 Nov  4 18:31 ..
+-rw-rw-r-- 1 joaobeis joaobeis  28 Nov  4 18:31 manual.txt
+
+<span style="font-weight:bold;color:yellow;">[PASSO 2] A executar o vp.sh em modo de PROTEÇÃO (-p)...</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp -f /tmp/.pdb_demo -e &quot;*.log&quot;</span>
+Base de dados de proteção /tmp/.pdb_demo criada com sucesso.
+Ficheiros processados: 3 | Diretórios protegidos: /tmp/demo_vp
+
+--- Conteúdo gerado na Base de Dados (/tmp/.pdb_demo) ---
+#DIR|/tmp/demo_vp
+/tmp/demo_vp/ficheiro2.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+/tmp/demo_vp/ficheiro1.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
+/tmp/demo_vp/documentos/manual.txt|USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
+
+<span style="font-weight:bold;color:yellow;">[PASSO 3] A simular alterações no sistema de ficheiros...</span>
+<span style="color:lime;">➜ Comandos de alteração executados:</span>
+   1. <span style="font-weight:bold;color:fuchsia;">echo &quot; Alterado!&quot; &gt;&gt; /tmp/demo_vp/ficheiro1.txt</span>
+   2. <span style="font-weight:bold;color:fuchsia;">chmod 777 /tmp/demo_vp/ficheiro2.txt</span>
+   3. <span style="font-weight:bold;color:fuchsia;">rm /tmp/demo_vp/documentos/manual.txt</span>
+   4. <span style="font-weight:bold;color:fuchsia;">echo &quot;Sou um ficheiro novo&quot; &gt; /tmp/demo_vp/ficheiro_novo.txt</span>
+   5. <span style="font-weight:bold;color:fuchsia;">echo &quot;Outro log&quot; &gt; /tmp/demo_vp/novo.log</span>
+
+<span style="font-weight:bold;color:yellow;">[PASSO 4] A executar o vp.sh em modo de VERIFICAÇÃO (-v)...</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -v -f /tmp/.pdb_demo -e &quot;*.log&quot; -s</span>
+/tmp/demo_vp/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
+  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=777, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+-----------------------------------------------------------------------------------------------------------------------------
+/tmp/demo_vp/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=42, PERM=664, MTIME=2026-11-04_18:31:42, SHA256=29886f0e0d9dd6c8867a2c16104a2b7d16efb9ddcae9a1ec87084a445bca7a20
+-----------------------------------------------------------------------------------------------------------------------------
+/tmp/demo_vp/documentos/manual.txt foi APAGADO
+ Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
+ Informação atual: [Ficheiro não encontrado no sistema]
+-----------------------------------------------------------------------------------------------------------------------------
+/tmp/demo_vp/ficheiro_novo.txt é NOVO
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=21, PERM=664, MTIME=2026-11-04_18:31:42, SHA256=98df015b17412ce2d50d10570e28aae2898cc3d60649722bc657d6b40eea6af1
+-----------------------------------------------------------------------------------------------------------------------------
+Resumo da Verificação: 3 verificados | 2 Modificado | 1 Apagado | 1 Novo
+
+<span style="color:lime;">➜ Comando para consultar os registos no Syslog:</span> <span style="font-weight:bold;color:fuchsia;">journalctl -t vp -n 5 --no-pager</span>
+Nov 04 18:30:07 joaobeis vp[158126]: /tmp/demo_vp/ficheiro_novo.txt é NOVO
+Nov 04 18:31:42 joaobeis vp[159801]: /tmp/demo_vp/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
+Nov 04 18:31:42 joaobeis vp[159829]: /tmp/demo_vp/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+Nov 04 18:31:42 joaobeis vp[159830]: /tmp/demo_vp/documentos/manual.txt foi APAGADO
+Nov 04 18:31:42 joaobeis vp[159833]: /tmp/demo_vp/ficheiro_novo.txt é NOVO
+
+<span style="font-weight:bold;color:yellow;">[PASSO 5] A testar validações de erro e argumentos inválidos...</span>
+
+<span style="color:lime;">A) Testar -p e -v simultaneamente:</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp -v</span>
+Não é possível introduzir -p e -v simultaneamente.
+Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
+       -p : Protege e guarda informação acerca de um ou mais diretórios
+       -v : Verifica alterações em ficheiros desde que foram protegidos
+       -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
+       -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
+       -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
+
+<span style="color:lime;">B) Testar opção inexistente (-x):</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -x</span>
+Invalid switch -x
+Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
+       -p : Protege e guarda informação acerca de um ou mais diretórios
+       -v : Verifica alterações em ficheiros desde que foram protegidos
+       -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
+       -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
+       -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
+
+<span style="color:lime;">C) Testar flag que exige argumento sem o fornecer (-f):</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -f</span>
+Falta argumento para -f
+Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
+       -p : Protege e guarda informação acerca de um ou mais diretórios
+       -v : Verifica alterações em ficheiros desde que foram protegidos
+       -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
+       -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
+       -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
+
+<span style="color:lime;">D) Testar proteção (-p) sem especificar diretórios:</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p</span>
+Tem de ser indicado algum diretorio.
+Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
+       -p : Protege e guarda informação acerca de um ou mais diretórios
+       -v : Verifica alterações em ficheiros desde que foram protegidos
+       -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
+       -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
+       -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
+
+<span style="color:lime;">E) Testar verificação (-v) com BD inexistente:</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -v -f /tmp/bd_inexistente_999.pdb</span>
+A base de dados '/tmp/bd_inexistente_999.pdb' não existe, tem de ser criada com a flag -p.
+Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
+       -p : Protege e guarda informação acerca de um ou mais diretórios
+       -v : Verifica alterações em ficheiros desde que foram protegidos
+       -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
+       -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
+       -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
+
+<span style="color:lime;">F) Testar proteção de um diretório que não existe no sistema:</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/diretorio_que_nao_existe_123 -f /tmp/.pdb_demo</span>
+O diretório '/tmp/diretorio_que_nao_existe_123' não existe.
+Base de dados de proteção /tmp/.pdb_demo criada com sucesso.
+Ficheiros processados: 0 | Diretórios protegidos: /tmp/diretorio_que_nao_existe_123
+
+<span style="color:aqua;">====================================================</span>
+<span style="color:aqua;">        DEMONSTRAÇÃO CONCLUÍDA COM SUCESSO          </span>
+<span style="color:aqua;">====================================================</span>
+</pre>
+</body>
+</html>
