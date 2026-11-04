@@ -88,10 +88,13 @@ function obter_metadados() {
     local group=$(ls -l "$ficheiro" | awk '{print $4}')
     local size=$(ls -l "$ficheiro" | awk '{print $5}')
     local perm=$(calcular_perm "$(ls -l "$ficheiro" | awk '{print $1}')") # aqui é aproveitada a coluna 1 que depois é utilizada pela calcular_perm
+    # data de modificação: o --time-style dá a data num formato fixo e sem espaços (ex: 2026-10-29_22:58:10), logo fica tudo na coluna 6
+    local mtime=$(ls -l --time-style=+%Y-%m-%d_%H:%M:%S "$ficheiro" | awk '{print $6}')
     local sha256=$(sha256sum "$ficheiro" | awk '{print $1}') #imprime varios caracteres e se for alterado uma unica letra o conjunto de caracteres muda
-
+    
+    
     # Retorna tudo numa linha separado por |
-    echo "USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, SHA256=$sha256"
+    echo "USER=$user, GROUP=$group, SIZE=$size, PERM=$perm, MTIME=$mtime, SHA256=$sha256"
 }
 
 function excluir() {
@@ -111,11 +114,16 @@ function proteger() {
         exit 1
     fi
 
-    # é preciso remover a bd antiga ? rm -f "$ficheiro_bd"
+    rm -f "$ficheiro_bd" # é preciso remover a bd antiga pois ao fim de ser criada só é possível ler e nao editar, ou seja nao é possivel executar duas vezes -p na mema BD
     if ! : > "$ficheiro_bd"; then # se nao for possivel criar uma bd, se for cria uma vazia 
         echo "Não foi possível criar a base de dados."
         exit 1
     fi
+
+    # guarda na BD os nomes dos diretorios protegidos (linhas #DIR|nome)
+    for diretorio in "${dir[@]}"; do
+        [ -d "$diretorio" ] && echo "#DIR|$diretorio" >> "$ficheiro_bd"
+    done
 
     ficheiros=0 # iniciar contador de numero de ficheiros
 
@@ -141,9 +149,10 @@ function proteger() {
                     echo " Não é possível obter_metadados de '$ficheiro'."
                 fi
            
-        done
+        done < <(find "$diretorio" -type f)
     done
 
+    chmod 400 "$ficheiro_bd" # deixa a bd so com leitura para o dono ("acesso READ_OLNY")
     echo "Base de dados de proteção $ficheiro_bd criada com sucesso."
     echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
 }
@@ -161,8 +170,16 @@ function verificar() {
     local dirs_protegidos=()
     local sep="-----------------------------------------------------------------------------------------------------------------------------"
     
-    while IFS= "|" read -r ficheiro guardado; do  # IFS diz ao read para dividir linha quando encontrar |
+    while IFS="|" read -r ficheiro guardado; do  # IFS diz ao read para dividir linha quando encontrar |
                                                   #divide em dois a 1 parte fica em ficheiro a 2 em guardado         
+
+
+        # linhas "#DIR|nome" guardam os diretorios protegidos
+        if [ "$ficheiro" = "#DIR" ]; then
+            dirs_protegidos+=("$guardado")
+            continue
+        fi
+
 
         if excluir "$ficheiro"; then #se o ficheiro corresponder ao padrao do -e é ignorado
             continue
@@ -189,8 +206,10 @@ function verificar() {
             grep -qE "USER|GROUP" <<< "$dif" && desc="$desc Posse"
             grep -q "PERM" <<< "$dif" && desc="$desc Permissões"
             grep -qE "SIZE|SHA256" <<< "$dif" && desc="$desc Conteúdo"
+            grep -q "MTIME" <<< "$dif" && desc="$desc Data_de_modificação" # com _ para não ser partido pelo "e" abaixo
             desc=${desc# }
             desc=${desc// / e }
+            desc=${desc//_/ } # volta a pôr espaços em "Data de modificação"
 
             alerta "$ficheiro foi MODIFICADO (Alteração de $desc)"
             echo "  Informação inicial: $guardado"
