@@ -121,18 +121,20 @@ function proteger() {
     fi
 
     # guarda na BD os nomes dos diretorios protegidos (linhas #DIR|nome)
+    local diretorios_protegidos=()
+
     for diretorio in "${dir[@]}"; do
-        [ -d "$diretorio" ] && echo "#DIR|$diretorio" >> "$ficheiro_bd"
+        if [ -d "$diretorio" ]; then
+            echo "#DIR|$diretorio" >> "$ficheiro_bd"
+            diretorios_protegidos+=("$diretorio")
+        else
+            echo "O diretório '$diretorio' não existe."
+        fi
     done
 
     ficheiros=0 # iniciar contador de numero de ficheiros
 
-    for diretorio in "${dir[@]}"; do # percorre todos os elementos do array
-
-        if [ ! -d "$diretorio" ]; then # -d ve se o diretorio existe
-            echo "O diretório '$diretorio' não existe."
-            continue #salta para o proximo diretorio
-        fi
+    for diretorio in "${diretorios_protegidos[@]}"; do # percorre todos os elementos do array
         
         while IFS= read -r ficheiro; do # IFS evita que o read apague espaços no inicio/fim da linha e -r evita que \ seja interpretado como caracter especial
         
@@ -150,7 +152,7 @@ function proteger() {
 
     chmod 400 "$ficheiro_bd" # deixa a bd so com leitura para o dono ("acesso READ_OLNY")
     echo "Base de dados de proteção $ficheiro_bd criada com sucesso."
-    echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${dir[*]}"
+    echo "Ficheiros processados: $ficheiros | Diretórios protegidos: ${diretorios_protegidos[*]}"
 }
 
 function verificar() {
