@@ -141,13 +141,9 @@ function proteger() {
                 fi
 
                 metadados=$(obter_metadados "$ficheiro") # guarda as informações em metadados
-
-                if [ $? -eq 0 ]; then # se o ultimo comando returnou 0 ou seja foi possivel obter metadados fazemos:
-                    echo "$ficheiro|$metadados" >> "$ficheiro_bd" #escreve o caminho e os metadados na bd
-                    ficheiros=$((ficheiros + 1))
-                else # se nao foi possivel obter os metadados return 1 e temos erro
-                    echo "Não é possível obter_metadados de '$ficheiro'."
-                fi
+                echo "$ficheiro|$metadados" >> "$ficheiro_bd" #escreve o caminho e os metadados na bd
+                ficheiros=$((ficheiros + 1))
+                
            
         done < <(find "$diretorio" -type f)
     done
