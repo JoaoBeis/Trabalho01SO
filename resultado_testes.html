@@ -12,130 +12,153 @@
 <span style="color:aqua;">   DEMONSTRAÇÃO DE FUNCIONALIDADES - VIGIA PIRATA   </span>
 <span style="color:aqua;">====================================================</span>
 
-<span style="font-weight:bold;color:yellow;">[PASSO 1] A criar estrutura inicial de ficheiros de teste...</span>
+<span style="font-weight:bold;color:yellow;">[PASSO 1] A criar estrutura inicial em múltiplos diretórios de teste...</span>
 <span style="color:lime;">➜ Comandos de preparação do ambiente:</span>
-   <span style="font-weight:bold;color:fuchsia;">mkdir -p /tmp/demo_vp/documentos</span>
-   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/ficheiro1.txt</span>
-   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/ficheiro2.txt</span>
-   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/documentos/manual.txt</span>
-   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp/app.log</span>
+   <span style="font-weight:bold;color:fuchsia;">mkdir -p /tmp/demo_vp1/documentos /tmp/demo_vp2/backup</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp1/ficheiro1.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp1/ficheiro2.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp1/documentos/manual.txt</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp1/app.log</span>
+   <span style="font-weight:bold;color:fuchsia;">echo &quot;...&quot; &gt; /tmp/demo_vp2/backup/dados.txt</span>
 
-Conteúdo da pasta /tmp/demo_vp:
+<span style="color:lime;">➜ Estrutura e conteúdo dos diretórios criados:</span>
+<span style="font-weight:bold;color:white;">📁 Diretório Principal 1: /tmp/demo_vp1
 total 12
-drwxrwxr-x  3 joaobeis joaobeis 120 Nov  4 18:31 .
-drwxrwxrwt 26 root     root     620 Nov  4 18:31 ..
--rw-rw-r--  1 joaobeis joaobeis  15 Nov  4 18:31 app.log
-drwxrwxr-x  2 joaobeis joaobeis  60 Nov  4 18:31 documentos
--rw-rw-r--  1 joaobeis joaobeis  31 Nov  4 18:31 ficheiro1.txt
--rw-rw-r--  1 joaobeis joaobeis  31 Nov  4 18:31 ficheiro2.txt
+drwxrwxr-x  3 joaobeis joaobeis 120 Nov  5 01:45 .
+drwxrwxrwt 20 root     root     440 Nov  5 01:45 ..
+-rw-rw-r--  1 joaobeis joaobeis  15 Nov  5 01:45 app.log
+drwxrwxr-x  2 joaobeis joaobeis  60 Nov  5 01:45 documentos
+-rw-rw-r--  1 joaobeis joaobeis  31 Nov  5 01:45 ficheiro1.txt
+-rw-rw-r--  1 joaobeis joaobeis  31 Nov  5 01:45 ficheiro2.txt
+
+📁 Subpasta: /tmp/demo_vp1/documentos
 total 4
-drwxrwxr-x 2 joaobeis joaobeis  60 Nov  4 18:31 .
-drwxrwxr-x 3 joaobeis joaobeis 120 Nov  4 18:31 ..
--rw-rw-r-- 1 joaobeis joaobeis  28 Nov  4 18:31 manual.txt
+drwxrwxr-x 2 joaobeis joaobeis  60 Nov  5 01:45 .
+drwxrwxr-x 3 joaobeis joaobeis 120 Nov  5 01:45 ..
+-rw-rw-r-- 1 joaobeis joaobeis  28 Nov  5 01:45 manual.txt
 
-<span style="font-weight:bold;color:yellow;">[PASSO 2] A executar o vp.sh em modo de PROTEÇÃO (-p)...</span>
-<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp -f /tmp/.pdb_demo -e &quot;*.log&quot;</span>
-Base de dados de proteção /tmp/.pdb_demo criada com sucesso.
-Ficheiros processados: 3 | Diretórios protegidos: /tmp/demo_vp
-
---- Conteúdo gerado na Base de Dados (/tmp/.pdb_demo) ---
-#DIR|/tmp/demo_vp
-/tmp/demo_vp/ficheiro2.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
-/tmp/demo_vp/ficheiro1.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
-/tmp/demo_vp/documentos/manual.txt|USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
-
-<span style="font-weight:bold;color:yellow;">[PASSO 3] A simular alterações no sistema de ficheiros...</span>
+📁 Diretório Principal 2: /tmp/demo_vp2/backup
+total 4
+drwxrwxr-x 2 joaobeis joaobeis 60 Nov  5 01:45 .
+drwxrwxr-x 3 joaobeis joaobeis 60 Nov  5 01:45 ..
+-rw-rw-r-- 1 joaobeis joaobeis 30 Nov  5 01:45 dados.txt
+</span>
+<span style="font-weight:bold;color:yellow;">[PASSO 2] A executar o vp.sh em modo de PROTEÇÃO (-p) com MÚLTIPLOS DIRETÓRIOS...</span>
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp1 /tmp/demo_vp2 -f /tmp/.pdb_demo -e &quot;*.log&quot;</span>
+<span style="font-weight:bold;color:white;">Base de dados de proteção /tmp/.pdb_demo criada com sucesso.
+Ficheiros processados: 4 | Diretórios protegidos: /tmp/demo_vp1 /tmp/demo_vp2
+</span>
+<span style="color:lime;">➜ Conteúdo gerado na Base de Dados (/tmp/.pdb_demo):</span>
+<span style="font-weight:bold;color:white;">#DIR|/tmp/demo_vp1
+#DIR|/tmp/demo_vp2
+/tmp/demo_vp1/ficheiro2.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+/tmp/demo_vp1/ficheiro1.txt|USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
+/tmp/demo_vp1/documentos/manual.txt|USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
+/tmp/demo_vp2/backup/dados.txt|USER=joaobeis, GROUP=joaobeis, SIZE=30, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=160bcfe05cc4ab0baa741f0136dde3792c09bdb73e6d5005798c8240f3ebcb1a
+</span>
+<span style="font-weight:bold;color:yellow;">[PASSO 3] A simular alterações no sistema de ficheiros (em ambos os diretórios)...</span>
 <span style="color:lime;">➜ Comandos de alteração executados:</span>
-   1. <span style="font-weight:bold;color:fuchsia;">echo &quot; Alterado!&quot; &gt;&gt; /tmp/demo_vp/ficheiro1.txt</span>
-   2. <span style="font-weight:bold;color:fuchsia;">chmod 777 /tmp/demo_vp/ficheiro2.txt</span>
-   3. <span style="font-weight:bold;color:fuchsia;">rm /tmp/demo_vp/documentos/manual.txt</span>
-   4. <span style="font-weight:bold;color:fuchsia;">echo &quot;Sou um ficheiro novo&quot; &gt; /tmp/demo_vp/ficheiro_novo.txt</span>
-   5. <span style="font-weight:bold;color:fuchsia;">echo &quot;Outro log&quot; &gt; /tmp/demo_vp/novo.log</span>
+   1. <span style="font-weight:bold;color:fuchsia;">echo &quot; Alterado!&quot; &gt;&gt; /tmp/demo_vp1/ficheiro1.txt</span>
+   2. <span style="font-weight:bold;color:fuchsia;">chmod 777 /tmp/demo_vp1/ficheiro2.txt</span>
+   3. <span style="font-weight:bold;color:fuchsia;">rm /tmp/demo_vp1/documentos/manual.txt</span>
+   4. <span style="font-weight:bold;color:fuchsia;">echo &quot;Sou um ficheiro novo em DIR1&quot; &gt; /tmp/demo_vp1/ficheiro_novo.txt</span>
+   5. <span style="font-weight:bold;color:fuchsia;">echo &quot;Outro log&quot; &gt; /tmp/demo_vp1/novo.log</span>
+   6. <span style="font-weight:bold;color:fuchsia;">echo &quot; Alterado em DIR2!&quot; &gt;&gt; /tmp/demo_vp2/backup/dados.txt</span>
+   7. <span style="font-weight:bold;color:fuchsia;">echo &quot;Novo ficheiro em DIR2&quot; &gt; /tmp/demo_vp2/backup/novo_dir2.txt</span>
 
 <span style="font-weight:bold;color:yellow;">[PASSO 4] A executar o vp.sh em modo de VERIFICAÇÃO (-v)...</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -v -f /tmp/.pdb_demo -e &quot;*.log&quot; -s</span>
-/tmp/demo_vp/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
-  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
-  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=777, MTIME=2026-11-04_18:31:41, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+<span style="font-weight:bold;color:white;">/tmp/demo_vp1/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
+  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=777, MTIME=2026-11-05_01:45:04, SHA256=8b12e603872afe2543278d9d248834ebfde21239366f31d347f122c99cee5266
 -----------------------------------------------------------------------------------------------------------------------------
-/tmp/demo_vp/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
-  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
-  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=42, PERM=664, MTIME=2026-11-04_18:31:42, SHA256=29886f0e0d9dd6c8867a2c16104a2b7d16efb9ddcae9a1ec87084a445bca7a20
+/tmp/demo_vp1/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=31, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=6e2d9af781d1156654bffbd1904a26e21f008a9ba348974f1ef14de6f1144257
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=42, PERM=664, MTIME=2026-11-05_01:45:05, SHA256=29886f0e0d9dd6c8867a2c16104a2b7d16efb9ddcae9a1ec87084a445bca7a20
 -----------------------------------------------------------------------------------------------------------------------------
-/tmp/demo_vp/documentos/manual.txt foi APAGADO
- Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-04_18:31:41, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
+/tmp/demo_vp1/documentos/manual.txt foi APAGADO
+ Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=28, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=d85cf9342c24fdb57e41c2185716be1b7c865f1e428c4c51aed6b804dcf43e54
  Informação atual: [Ficheiro não encontrado no sistema]
 -----------------------------------------------------------------------------------------------------------------------------
-/tmp/demo_vp/ficheiro_novo.txt é NOVO
-  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=21, PERM=664, MTIME=2026-11-04_18:31:42, SHA256=98df015b17412ce2d50d10570e28aae2898cc3d60649722bc657d6b40eea6af1
+/tmp/demo_vp2/backup/dados.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+  Informação inicial: USER=joaobeis, GROUP=joaobeis, SIZE=30, PERM=664, MTIME=2026-11-05_01:45:04, SHA256=160bcfe05cc4ab0baa741f0136dde3792c09bdb73e6d5005798c8240f3ebcb1a
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=49, PERM=664, MTIME=2026-11-05_01:45:05, SHA256=b5c431bd467d430a3c8ceff3920a9727c89895d962a2ee2c4c2cc0423c1b150b
 -----------------------------------------------------------------------------------------------------------------------------
-Resumo da Verificação: 3 verificados | 2 Modificado | 1 Apagado | 1 Novo
-
-<span style="color:lime;">➜ Comando para consultar os registos no Syslog:</span> <span style="font-weight:bold;color:fuchsia;">journalctl -t vp -n 5 --no-pager</span>
-Nov 04 18:30:07 joaobeis vp[158126]: /tmp/demo_vp/ficheiro_novo.txt é NOVO
-Nov 04 18:31:42 joaobeis vp[159801]: /tmp/demo_vp/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
-Nov 04 18:31:42 joaobeis vp[159829]: /tmp/demo_vp/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
-Nov 04 18:31:42 joaobeis vp[159830]: /tmp/demo_vp/documentos/manual.txt foi APAGADO
-Nov 04 18:31:42 joaobeis vp[159833]: /tmp/demo_vp/ficheiro_novo.txt é NOVO
-
+/tmp/demo_vp1/ficheiro_novo.txt é NOVO
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=29, PERM=664, MTIME=2026-11-05_01:45:05, SHA256=6721f8459ff792b8ee2d86879ba8e10a7b46852031d046c849af739713d9af7d
+-----------------------------------------------------------------------------------------------------------------------------
+/tmp/demo_vp2/backup/novo_dir2.txt é NOVO
+  Informação atual:  USER=joaobeis, GROUP=joaobeis, SIZE=22, PERM=664, MTIME=2026-11-05_01:45:05, SHA256=7cdf0127b067729c8f5f3118b2aa2eddecdce5e1c516944592fd6218d5101fa5
+-----------------------------------------------------------------------------------------------------------------------------
+Resumo da Verificação: 4 verificados | 3 Modificado | 1 Apagado | 2 Novo
+</span>
+<span style="color:lime;">➜ Comando para consultar os registos no Syslog:</span> <span style="font-weight:bold;color:fuchsia;">journalctl -t vp -n 7 --no-pager</span>
+<span style="font-weight:bold;color:white;">Nov 05 01:37:08 joaobeis vp[170483]: /tmp/demo_vp1/ficheiro_novo.txt é NOVO
+Nov 05 01:45:05 joaobeis vp[174267]: /tmp/demo_vp1/ficheiro2.txt foi MODIFICADO (Alteração de Permissões)
+Nov 05 01:45:05 joaobeis vp[174295]: /tmp/demo_vp1/ficheiro1.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+Nov 05 01:45:05 joaobeis vp[174296]: /tmp/demo_vp1/documentos/manual.txt foi APAGADO
+Nov 05 01:45:05 joaobeis vp[174324]: /tmp/demo_vp2/backup/dados.txt foi MODIFICADO (Alteração de Conteúdo e Data de modificação)
+Nov 05 01:45:05 joaobeis vp[174327]: /tmp/demo_vp1/ficheiro_novo.txt é NOVO
+Nov 05 01:45:05 joaobeis vp[174352]: /tmp/demo_vp2/backup/novo_dir2.txt é NOVO
+</span>
 <span style="font-weight:bold;color:yellow;">[PASSO 5] A testar validações de erro e argumentos inválidos...</span>
 
 <span style="color:lime;">A) Testar -p e -v simultaneamente:</span>
-<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp -v</span>
-Não é possível introduzir -p e -v simultaneamente.
+<span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/demo_vp1 -v</span>
+<span style="font-weight:bold;color:white;">Não é possível introduzir -p e -v simultaneamente.
 Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
        -p : Protege e guarda informação acerca de um ou mais diretórios
        -v : Verifica alterações em ficheiros desde que foram protegidos
        -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
        -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
        -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
-
+</span>
 <span style="color:lime;">B) Testar opção inexistente (-x):</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -x</span>
-Invalid switch -x
+<span style="font-weight:bold;color:white;">Invalid switch -x
 Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
        -p : Protege e guarda informação acerca de um ou mais diretórios
        -v : Verifica alterações em ficheiros desde que foram protegidos
        -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
        -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
        -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
-
+</span>
 <span style="color:lime;">C) Testar flag que exige argumento sem o fornecer (-f):</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -f</span>
-Falta argumento para -f
+<span style="font-weight:bold;color:white;">Falta argumento para -f
 Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
        -p : Protege e guarda informação acerca de um ou mais diretórios
        -v : Verifica alterações em ficheiros desde que foram protegidos
        -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
        -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
        -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
-
+</span>
 <span style="color:lime;">D) Testar proteção (-p) sem especificar diretórios:</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p</span>
-Tem de ser indicado algum diretorio.
+<span style="font-weight:bold;color:white;">Tem de ser indicado algum diretorio.
 Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
        -p : Protege e guarda informação acerca de um ou mais diretórios
        -v : Verifica alterações em ficheiros desde que foram protegidos
        -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
        -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
        -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
-
+</span>
 <span style="color:lime;">E) Testar verificação (-v) com BD inexistente:</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -v -f /tmp/bd_inexistente_999.pdb</span>
-A base de dados '/tmp/bd_inexistente_999.pdb' não existe, tem de ser criada com a flag -p.
+<span style="font-weight:bold;color:white;">A base de dados '/tmp/bd_inexistente_999.pdb' não existe, tem de ser criada com a flag -p.
 Uso: ./vp [{-p &lt;dir1[&lt;dir2&gt;...] | -v}] [-f &lt;ficheiro&gt;] [-e &lt;ignore_pattern&gt;] [-s]
        -p : Protege e guarda informação acerca de um ou mais diretórios
        -v : Verifica alterações em ficheiros desde que foram protegidos
        -f : Indicação do nome do ficheiro onde a base de dados será guardada (Por defeito será tmp/.pdb)
        -e : Permite a exclusão de ficheiros voláteis (ex. *.tmp, *.log, /tmp/*) da proteção e verificação
        -s : Emissão de alertas de alta prioridade para o sistema de logging usando o logger
-
+</span>
 <span style="color:lime;">F) Testar proteção de um diretório que não existe no sistema:</span>
 <span style="color:lime;">➜ Comando executado:</span> <span style="font-weight:bold;color:fuchsia;">./vp.sh -p /tmp/diretorio_que_nao_existe_123 -f /tmp/.pdb_demo</span>
-O diretório '/tmp/diretorio_que_nao_existe_123' não existe.
+<span style="font-weight:bold;color:white;">O diretório '/tmp/diretorio_que_nao_existe_123' não existe.
 Base de dados de proteção /tmp/.pdb_demo criada com sucesso.
 Ficheiros processados: 0 | Diretórios protegidos: /tmp/diretorio_que_nao_existe_123
-
+</span>
 <span style="color:aqua;">====================================================</span>
 <span style="color:aqua;">        DEMONSTRAÇÃO CONCLUÍDA COM SUCESSO          </span>
 <span style="color:aqua;">====================================================</span>
