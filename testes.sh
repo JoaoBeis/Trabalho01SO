@@ -55,6 +55,12 @@ echo -ne "${NC}"
 echo -e "\n${GREEN}➜ Conteúdo gerado na Base de Dados ($BD):${NC}"
 echo -ne "${WHITE}"
 cat "$BD"
+echo -e "\n${GREEN}➜ Verificação imediata, sem alterações (esperado: 0 modificados e código de saída 0):${NC}"
+echo -e "${GREEN}➜ Comando executado:${NC} ${MAGENTA}./vp.sh -v -f $BD -e \"*.log\"${NC}"
+echo -ne "${WHITE}"
+./vp.sh -v -f "$BD" -e "*.log"
+echo "Código de saída: $?"
+echo -ne "${NC}"
 echo -ne "${NC}"
 
 # 3. SIMULAÇÃO DE ALTERAÇÕES NO SISTEMA (INTRUSÃO EM AMBOS OS DIRETÓRIOS)
@@ -67,7 +73,9 @@ echo -e "   4. ${MAGENTA}echo \"Sou um ficheiro novo em DIR1\" > $TEST_DIR1/fich
 echo -e "   5. ${MAGENTA}echo \"Outro log\" > $TEST_DIR1/novo.log${NC}"
 echo -e "   6. ${MAGENTA}echo \" Alterado em DIR2!\" >> $TEST_DIR2/backup/dados.txt${NC}"
 echo -e "   7. ${MAGENTA}echo \"Novo ficheiro em DIR2\" > $TEST_DIR2/backup/novo_dir2.txt${NC}"
+echo -e "   8. ${MAGENTA}touch -d \"2020-01-01 12:00:00\" $TEST_DIR1/ficheiro2.txt${NC}"
 
+sleep 1   # garante que o MTIME muda (resolução de 1 segundo)
 echo " Alterado!" >> "$TEST_DIR1/ficheiro1.txt"
 chmod 777 "$TEST_DIR1/ficheiro2.txt"
 rm "$TEST_DIR1/documentos/manual.txt"
@@ -75,17 +83,28 @@ echo "Sou um ficheiro novo em DIR1" > "$TEST_DIR1/ficheiro_novo.txt"
 echo "Outro log" > "$TEST_DIR1/novo.log"
 echo " Alterado em DIR2!" >> "$TEST_DIR2/backup/dados.txt"
 echo "Novo ficheiro em DIR2" > "$TEST_DIR2/backup/novo_dir2.txt"
+touch -d "2020-01-01 12:00:00" "$TEST_DIR1/ficheiro2.txt"
 
 # 4. VERIFICAÇÃO DE ALTERAÇÕES (-v, -f, -e, -s)
 echo -e "\n${YELLOW}[PASSO 4] A executar o vp.sh em modo de VERIFICAÇÃO (-v)...${NC}"
 echo -e "${GREEN}➜ Comando executado:${NC} ${MAGENTA}./vp.sh -v -f $BD -e \"*.log\" -s${NC}"
 echo -ne "${WHITE}"
 ./vp.sh -v -f "$BD" -e "*.log" -s
+codigo=$?
+echo -ne "${NC}"
+echo -e "\n${GREEN}➜ Código de saída da verificação:${NC} ${WHITE}$codigo${NC} (1 = foram detetadas alterações)"
+
+echo -e "\n${GREEN}➜ Modo por omissão (sem -v) e opções agrupadas (-vf), mostrando só o resumo:${NC}"
+echo -e "${GREEN}➜ Comandos executados:${NC} ${MAGENTA}./vp.sh -f $BD -e \"*.log\" | tail -n 1${NC}"
+echo -e "                      ${MAGENTA}./vp.sh -vf $BD -e \"*.log\" | tail -n 1${NC}"
+echo -ne "${WHITE}"
+./vp.sh -f "$BD" -e "*.log" | tail -n 1
+./vp.sh -vf "$BD" -e "*.log" | tail -n 1
 echo -ne "${NC}"
 
-echo -e "\n${GREEN}➜ Comando para consultar os registos no Syslog:${NC} ${MAGENTA}journalctl -t vp -n 7 --no-pager${NC}"
+echo -e "\n${GREEN}➜ Comando para consultar os registos no Syslog:${NC} ${MAGENTA}journalctl -t vp -n 6 --no-pager${NC}"
 echo -ne "${WHITE}"
-journalctl -t vp -n 7 --no-pager
+journalctl -t vp -n 6 --no-pager
 echo -ne "${NC}"
 
 # 5. TESTE DE ERROS DE SINTAXE E ARGUMENTOS INVÁLIDOS
